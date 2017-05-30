@@ -31,21 +31,9 @@ module OctoKeeper
         exit 1
       end
 
-      team = client.team(2368730)
+      team = client.team(team_id)
       puts OctoKeeper.pastel.underline.bold("🔑  Applying permissions for team #{team.name}")
-
-      client.org_repos(OctoKeeper::ORGANIZATION).each do |repo|
-        spinner = TTY::Spinner.new "[:spinner] #{repo.full_name}", format: :arc
-        spinner.run do
-          begin
-            client.add_team_repository(team.id, repo.full_name, permission: permission)
-            spinner.success("(done)")
-          rescue Octokit::UnprocessableEntity => error
-            spinner.error("(error)")
-            puts error.message
-          end
-        end
-      end
+      apply_repo_permissions_for_team(team, permission)
     end
 
     private
@@ -60,6 +48,27 @@ module OctoKeeper
       puts table.render(:basic)
       puts ""
       puts OctoKeeper.pastel.green("The list has #{OctoKeeper.pastel.bold(table.size[0])} items.")
+    end
+
+    def with_spinner(label)
+      spinner = TTY::Spinner.new("[:spinner] #{label}", format: :arc)
+      spinner.run do
+        begin
+          yield spinner
+          spinner.success("(done)")
+        rescue StandardError => error
+          spinner.error("(error)")
+          puts error.message
+        end
+      end
+    end
+
+    def apply_repo_permissions_for_team(team, permission)
+      client.org_repos(OctoKeeper::ORGANIZATION).each do |repo|
+        with_spinner(repo.full_name) do
+          client.add_team_repository(team.id, repo.full_name, permission: permission)
+        end
+      end
     end
   end
 end
