@@ -24,16 +24,28 @@ module OctoKeeper
       end
     end
 
-    desc "apply TEAM PERMISSION", "Applies the PERMISSION on all repos to the TEAM. PERMISSION must be admin, push or pull."
-    def apply(team_id, permission)
+    desc "apply-team TEAM PERMISSION", "Applies the PERMISSION on all repos to the TEAM. PERMISSION must be admin, push or pull."
+    def apply_team(team_id, permission)
       unless %w(admin push pull).include?(permission)
         puts OctoKeeper.pastel.red("Permission must be one of admin, push, pull.")
         exit 1
       end
 
-      team = client.team(team_id)
-      puts OctoKeeper.pastel.underline.bold("🔑  Applying permissions for team #{team.name}")
-      apply_repo_permissions_for_team(team, permission)
+      if team_id.to_i <= 0 && team_id != 'all'
+        puts OctoKeeper.pastel.red("Team ID must be 'all' or a team id. Run 'octo-keeper teams' to get the number.")
+        exit 1
+      end
+
+      teams = if team_id == 'all'
+                client.org_teams(OctoKeeper::ORGANIZATION)
+              else
+                [client.team(team_id)]
+              end
+
+      teams.each do |team|
+        puts "🔑  Applying permissions for team #{team.name}"
+        apply_repo_permissions_for_team(team, permission)
+      end
     end
 
     private
@@ -51,7 +63,7 @@ module OctoKeeper
     end
 
     def with_spinner(label)
-      spinner = TTY::Spinner.new("[:spinner] #{label}", format: :arc)
+      spinner = TTY::Spinner.new("[:spinner] #{label}", format: :classic)
       spinner.run do
         begin
           yield spinner
