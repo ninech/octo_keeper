@@ -6,4 +6,9 @@ $LOAD_PATH.unshift File.join('.', 'vendor/bundle')
 require "bundler/setup"
 require "octo_keeper"
 
+Octokit.configure do |c|
+  c.access_token = ENV['OCTOKEEPER_ACCESS_TOKEN']
+  c.auto_paginate = true
+end
+
 OctoKeeper::CLI.start(ARGV)
