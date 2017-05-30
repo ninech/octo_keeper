@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift File.join('.', 'lib')
+$LOAD_PATH.unshift File.join('.', 'vendor/bundle')
+
+require "bundler/setup"
+require "octo_keeper"
+
+OctoKeeper::CLI.start(ARGV)
