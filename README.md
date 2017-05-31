@@ -26,7 +26,7 @@ Then you can fetch a list of your teams with the following command:
 
 Or you can apply permissions to all repositories for one team:
 
-    $ octo-keeper apply --org ninech 12345 pull
+    $ octo-keeper teams apply --org ninech 12345 pull
 
 ## Development
 

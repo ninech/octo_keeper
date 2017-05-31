@@ -6,19 +6,16 @@ require 'pastel'
 module OctoKeeper
   module Commands
     class Base < Thor
-      attr_writer :octokit_client
+      attr_accessor :octokit_client
       attr_accessor :output_stream
 
       def initialize(*args)
         @output_stream = $stdout
+        @octokit_client = Octokit::Client.new
         super
       end
 
       private
-
-      def octokit_client
-        @octokit_client ||= Octokit::Client.new
-      end
 
       def pastel
         @pastel ||= Pastel.new enabled: @output_stream.tty?
@@ -37,6 +34,7 @@ module OctoKeeper
       end
 
       def with_spinner(label)
+        return yield unless @output_stream.tty?
         spinner = TTY::Spinner.new("[:spinner] #{label}", format: :classic)
         spinner.run do
           begin
