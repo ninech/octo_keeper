@@ -1,15 +1,10 @@
-require 'thor'
-require 'octokit'
-require 'tty-table'
-require 'tty-spinner'
+require "thor"
 
 require "octo_keeper/version"
-require "octo_keeper/cli"
-
-require "pastel"
+require "octo_keeper/commands/base"
+require "octo_keeper/commands/teams"
+require "octo_keeper/commands/repos"
+require "octo_keeper/commands/cli"
 
 module OctoKeeper
-  def self.pastel
-    @pastel ||= Pastel.new
-  end
 end
