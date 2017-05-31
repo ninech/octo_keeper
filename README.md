@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ninech/octo_keeper.svg?branch=master)](https://travis-ci.org/ninech/octo_keeper)
+
 # OctoKeeper
 
 This is a little command line tool which allows you to manage access to your Github organization's repositories.
