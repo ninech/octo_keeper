@@ -1,9 +1,3 @@
-require 'thor'
-require 'octokit'
-require 'pry'
-require 'tty-table'
-require 'tty-spinner'
-
 module OctoKeeper
   class CLI < Thor
     class_option :org, type: :string, required: true, banner: "Github organization"

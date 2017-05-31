@@ -1,3 +1,8 @@
+require 'thor'
+require 'octokit'
+require 'tty-table'
+require 'tty-spinner'
+
 require "octo_keeper/version"
 require "octo_keeper/cli"
 
