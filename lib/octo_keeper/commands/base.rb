@@ -37,14 +37,12 @@ module OctoKeeper
         return yield unless @output_stream.tty?
         spinner = TTY::Spinner.new("[:spinner] #{label}", format: :classic)
         spinner.run do
-          begin
-            yield spinner
-            spinner.success("(done)")
-          rescue StandardError => error
-            spinner.error("(error)")
-            output error.message
-          end
+          yield spinner
         end
+        spinner.success("(done)")
+      rescue StandardError => error
+        spinner.error("(error)")
+        output error.message
       end
     end
   end
