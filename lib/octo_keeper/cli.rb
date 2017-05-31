@@ -6,10 +6,12 @@ require 'tty-spinner'
 
 module OctoKeeper
   class CLI < Thor
+    class_option :org, type: :string, required: true, banner: "Github organization"
+
     desc "repos", "Shows our repositories on Github"
     def repos
       table_output(%w(Name Description)) do |table|
-        client.org_repos(OctoKeeper::ORGANIZATION, type: 'all').each do |repo|
+        client.org_repos(options[:org], type: 'all').each do |repo|
           table << [repo.name, repo.description.to_s[0..50]]
         end
       end
@@ -18,7 +20,7 @@ module OctoKeeper
     desc "teams", "List the organization's teams."
     def teams
       table_output(%w(ID Name Description)) do |table|
-        client.org_teams(OctoKeeper::ORGANIZATION).each do |team|
+        client.org_teams(options[:org]).each do |team|
           table << [team.id, team.slug, team.description.to_s[0..50]]
         end
       end
@@ -37,7 +39,7 @@ module OctoKeeper
       end
 
       teams = if team_id == 'all'
-                client.org_teams(OctoKeeper::ORGANIZATION)
+                client.org_teams(options[:org])
               else
                 [client.team(team_id)]
               end
@@ -76,7 +78,7 @@ module OctoKeeper
     end
 
     def apply_repo_permissions_for_team(team, permission)
-      client.org_repos(OctoKeeper::ORGANIZATION).each do |repo|
+      client.org_repos(options[:org]).each do |repo|
         with_spinner(repo.full_name) do
           client.add_team_repository(team.id, repo.full_name, permission: permission)
         end

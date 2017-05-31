@@ -22,11 +22,11 @@ Set an environment variable with you Github access token:
 
 Then you can fetch a list of your teams with the following command:
 
-    $ octo-keeper teams
+    $ octo-keeper teams --org ninech
 
 Or you can apply permissions to all repositories for one team:
 
-    $ octo-keeper apply 12345 pull
+    $ octo-keeper apply --org ninech 12345 pull
 
 ## Development
 
