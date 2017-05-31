@@ -12,12 +12,12 @@ module OctoKeeper
       desc "apply-team TEAM PERMISSION", "Applies the PERMISSION on all repos to the TEAM. PERMISSION must be admin, push or pull."
       def apply_team(team_id, permission)
         unless %w(admin push pull).include?(permission)
-          puts pastel.red("Permission must be one of admin, push, pull.")
+          output pastel.red("Permission must be one of admin, push, pull.")
           exit 1
         end
 
         if team_id.to_i <= 0 && team_id != 'all'
-          puts pastel.red("Team ID must be 'all' or a team id. Run 'octo-keeper teams' to get the number.")
+          output pastel.red("Team ID must be 'all' or a team id. Run 'octo-keeper teams' to get the number.")
           exit 1
         end
 
@@ -28,7 +28,7 @@ module OctoKeeper
                 end
 
         teams.each do |team|
-          puts "🔑  Applying permissions for team #{team.name}"
+          output "🔑  Applying permissions for team #{team.name}"
           apply_repo_permissions_for_team(team, permission)
         end
       end
