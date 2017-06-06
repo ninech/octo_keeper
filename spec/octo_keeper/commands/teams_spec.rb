@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe OctoKeeper::Commands::Teams do
-  let(:team) { double(id: 12345, slug: 'admins', description: 'The administrators guild') }
+  let(:team) { double(id: 12345, slug: 'admins', description: 'The administrators guild', name: 'Admins') }
   let(:repository) { double(full_name: 'ninech/octo_keeper') }
   let(:command) { described_class.new }
   let(:console_output) { command.output_stream.string }
@@ -33,6 +33,34 @@ RSpec.describe OctoKeeper::Commands::Teams do
 
     it 'shows how many teams there are' do
       expect(console_output).to include "The list has 1 items."
+    end
+  end
+
+  describe '#show' do
+    before { command.show(slug) }
+
+    context 'for an existing team' do
+      let(:slug) { 'admins' }
+
+      it 'shows the team name' do
+        expect(console_output).to include 'Admins'
+      end
+
+      it 'shows the team ID' do
+        expect(console_output).to include '12345'
+      end
+
+      it 'shows the team description' do
+        expect(console_output).to include 'The administrators guild'
+      end
+    end
+
+    context 'for an not existing team' do
+      let(:slug) { 'bots' }
+
+      it 'shows a message' do
+        expect(console_output.chomp).to eq 'No team with this name was found.'
+      end
     end
   end
 

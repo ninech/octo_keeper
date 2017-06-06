@@ -5,8 +5,21 @@ module OctoKeeper
       def list
         table_output(%w(ID Name Description)) do |table|
           octokit_client.org_teams(options[:org]).each do |team|
-            table << [team.id, team.slug, team.description.to_s[0..50]]
+            table << [team.id, team.slug, team.description]
           end
+        end
+      end
+
+      desc "show SLUG", "Shows some information about a team."
+      def show(slug)
+        team = Team.from_slug(options[:org], slug, client: octokit_client)
+
+        if team.nil?
+          output pastel.yellow("No team with this name was found.")
+        else
+          output "Team\t#{team.name}"
+          output "ID\t#{team.id}"
+          output team.description
         end
       end
 
