@@ -7,6 +7,7 @@ require "octo_keeper/team"
 require "octo_keeper/commands/base"
 require "octo_keeper/commands/teams"
 require "octo_keeper/commands/repos"
+require "octo_keeper/commands/webhook"
 require "octo_keeper/commands/cli"
 
 module OctoKeeper
