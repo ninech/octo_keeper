@@ -1,6 +1,8 @@
 module OctoKeeper
   module Commands
     class Teams < Base
+      class_option :org, type: :string, required: true, banner: "Github organization"
+
       desc "list", "Shows all the teams of your organization."
       def list
         table_output(%w(ID Name Description)) do |table|

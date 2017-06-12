@@ -1,6 +1,7 @@
 require "thor"
 
 require "octo_keeper/version"
+require "octo_keeper/configuration"
 require "octo_keeper/spinner"
 require "octo_keeper/team"
 
