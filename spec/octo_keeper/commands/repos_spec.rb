@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe OctoKeeper::Commands::Repos do
   let(:repo) { double(name: 'Yolo', description: 'Yolo Desc') }
-  let(:command) { described_class.new }
+  let(:command) { described_class.new [], org: 'yolo' }
   let(:console_output) { command.output_stream.string }
 
   before do

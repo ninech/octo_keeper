@@ -3,7 +3,7 @@ require 'spec_helper'
 RSpec.describe OctoKeeper::Commands::Teams do
   let(:team) { double(id: 12345, slug: 'admins', description: 'The administrators guild', name: 'Admins') }
   let(:repository) { double(full_name: 'ninech/octo_keeper') }
-  let(:command) { described_class.new }
+  let(:command) { described_class.new([], org: 'yolo') }
   let(:console_output) { command.output_stream.string }
   let(:octokit_client) { instance_double('Octokit::Client', org_teams: [team], team: team, org_repos: [repository]) }
 

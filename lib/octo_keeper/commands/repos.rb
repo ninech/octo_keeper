@@ -1,6 +1,8 @@
 module OctoKeeper
   module Commands
     class Repos < Base
+      class_option :org, type: :string, required: true, banner: "Github organization"
+
       desc "list", "Shows all the repos of your organization."
       def list
         table_output(%w(Name Description)) do |table|
