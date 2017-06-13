@@ -1,8 +1,22 @@
-sudo: false
+sudo: required
+dist: trusty
 language: ruby
-rvm:
-- 2.4.1
-before_install: gem install bundler -v 1.15.0
 notifications:
   slack:
     secure: IHqRfufMVpseJTxC5Mkv5osjFNj87Tgm/1Ck+1zfVTHNrkeEBz1Gy9oJP4T8ApSiulkaymC9CiChmS3r92I+olnn5MaaK3lkRYFcYiUp9Oa+J8b4boyW1RA1F0k7F0KTeWr2UJEXdpiFFKbZjf5UkaS+7TnP8LbXFPKve42sNnZ6Cx6fdz6nxOBvWFmzFtoIs90HXMoPK6HgB+skcxdP1kFm4cwmETKiWrQRk+UMGVqFtvNBYdm70y8oDJ2sMqlm33aZDLotgc6FffNxiFQ0P4M2XxytM7SMxMaXCtCk7lnqs8WdOKUXdeJjEt6vzfw/NW23oAXCIm+BOKVlzgPzqJ8cNK1cm8niViMVWG9JLZVFLFGPXbuhn6l+/2+K7dFwzf3HmS3mRuYnys7GweRFMuOFuzyfooFucjOY2P0x8xON/fhzXwTlk2OLtA/42CKFHf/ontWml+Gan/CGh6RPlIQbGO48C4eFwcYq6ExQ3/DHRfq5q/ODO6vdJLKucY7piAaMrRCMR6DwTUKp/ftjyn8UqNO4zkbeqLxiAkFWnEZJ0TPJnYZFEBkXRoxuBcYdcUoF4eueiVoB6/rGS9xtDgBwGrwzKsuBioMm3QB/wjcjF6EiEU2B6ZrchcvLE6elDRb73UbqQ6oHPiu9VhoXBzHc18B3nJZnvagaQ7qb6Vk=
+jobs:
+  include:
+    - stage: run ruby tests
+      language: ruby
+      rvm: 2.4.1
+      before_install: gem install bundler
+      script:
+      - bundle install
+      - bundle exec rspec
+    - stage: build docker image
+      services:
+      - docker
+      install: true
+      script:
+      - docker build -t ninech/octo-keeper .
+      - docker run --rm ninech/octo-keeper /usr/local/bundle/bin/octo-keeper help
