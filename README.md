@@ -43,11 +43,11 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 There is a sample event json to post to the webhook server.
 
 ```sh
-$ bin/octo-keeper webhook start --org=yolo
+$ bin/octo-keeper webhook start
 # With HTTPie
-$ http --json POST localhost:4567 < spec/fixtures/example-event.json
+$ http --json POST localhost:4567 < spec/fixtures/example-repository-create-event.json
 # With Curl
-$ curl -X POST http://localhost:4567/ -d @spec/fixtures/example-event.json --header "Content-Type: application/json"
+$ curl -X POST http://localhost:4567/ -d @spec/fixtures/example-repository-create-event --header "Content-Type: application/json"
 ```
 
 ## Contributing
