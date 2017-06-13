@@ -8,6 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = OctoKeeper::VERSION
   spec.authors       = ["Philippe Hässig"]
   spec.email         = ["phil@nine.ch"]
+  spec.license       = 'MIT'
 
   spec.summary       = "Maintains our Github repos"
   spec.description   = "Octo-Keeper is responsible to keep the settings of our Github repos in sync."
@@ -21,23 +22,21 @@ Gem::Specification.new do |spec|
     fail "RubyGems 2.0 or newer is required to protect against public gem pushes."
   end
 
-  spec.files         = `git ls-files -z`.split("\x0").reject do |f|
+  spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
   spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.executables   = "octo-keeper"
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "thor"
-  spec.add_dependency "octokit"
-  spec.add_dependency "tty-table"
-  spec.add_dependency "tty-spinner"
-  spec.add_dependency "sinatra"
-  spec.add_dependency "puma"
+  spec.add_dependency "thor", "~> 0.19"
+  spec.add_dependency "octokit", "~> 4.7"
+  spec.add_dependency "tty-table", "~> 0.8"
+  spec.add_dependency "tty-spinner", "~> 0.4"
+  spec.add_dependency "sinatra", "~> 2.0"
+  spec.add_dependency "puma", "~> 3.9"
 
   spec.add_development_dependency "bundler", "~> 1.15"
-  spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
-  spec.add_development_dependency "pry"
-  spec.add_development_dependency "rack-test"
+  spec.add_development_dependency "rack-test", "~> 0.6"
 end
