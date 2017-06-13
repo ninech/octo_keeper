@@ -6,6 +6,7 @@ module OctoKeeper
       desc 'start', 'Starts the webhook in the foreground'
       option :port, type: :numeric, default: 4567, banner: 'PORT', desc: 'The on which to listen for requests.'
       option :bind, type: :string, default: 'localhost', desc: 'The interface to listen on.'
+      option :config, type: :string, default: '~/.octo-keeper.yml', desc: 'Path to the config file.'
       def start
         load_configuration
 
@@ -17,7 +18,7 @@ module OctoKeeper
       private
 
       def load_configuration
-        OctoKeeper::Configuration.load 'config.yml'
+        OctoKeeper::Configuration.load options[:config]
       rescue OctoKeeper::ConfigNotFoundError => error
         say error.message
         say "Using default configuration."

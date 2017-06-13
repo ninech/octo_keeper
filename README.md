@@ -30,6 +30,12 @@ Or you can apply permissions to all repositories for one team:
 
     $ octo-keeper teams apply --org ninech 12345 pull
 
+Start the webhook server to receive github webhooks:
+
+    $ octo-keeper webhook start --config config.yml
+
+Now you can enter the following webhook at Github.com: https://<hostname>/
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests.

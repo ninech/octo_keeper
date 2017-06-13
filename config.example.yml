@@ -1,0 +1,13 @@
+---
+repositories:
+  default:
+    permissions:
+      bots: pull
+      deployment: pull
+  ninech-test/new-repo:
+    permissions:
+      deployment: push
+      sales: pull
+  ninech-test/yolo:
+    permissions:
+      deployment: admin
