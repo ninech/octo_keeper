@@ -42,13 +42,15 @@ module OctoKeeper
     def handle_repository_created(repository)
       repository.team_permissions.each_pair do |team_slug, permission|
         team = Team.from_slug(repository.owner, team_slug, client: OctoKeeper.octokit_client)
-        begin
-          OctoKeeper.octokit_client.add_team_repository(team.id, repository.full_name, permission: permission)
-          logger.info "Added #{permission} permission for team #{team_slug} on #{repository.name}."
-        rescue StandardError => e
-          logger.error "Setting permissions for team #{team_slug} failed: #{e.message}"
-        end
+        save_permissions(team, repository, permission)
       end
+    end
+
+    def save_permissions(team, repository, permission)
+      OctoKeeper.octokit_client.add_team_repository(team.id, repository.full_name, permission: permission)
+      logger.info "Added #{permission} permission for team #{team.slug} on #{repository.name}."
+    rescue StandardError => e
+      logger.error "Setting permissions for team #{team_slug} failed: #{e.message}"
     end
   end
 end
