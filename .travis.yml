@@ -21,13 +21,11 @@ jobs:
     - docker build -t ninech/octo-keeper:latest .
     - docker run --rm ninech/octo-keeper /usr/local/bundle/bin/octo-keeper help
     after_success:
-    - echo $TRAVIS_BRANCH
-    - if [ $TRAVIS_BRANCH == "docker" ]; then
-        export OCTO_KEEPER_VERSION=$(docker run --rm ninech/octo-keeper /usr/local/bundle/bin/octo-keeper version);
-        echo $OCTO_KEEPER_VERSION;
-        docker tag ninech/octo-keeper ninech/octo-keeper:$OCTO_KEEPER_VERSION;
+    - echo $TRAVIS_TAG
+    - if [ -n "$TRAVIS_TAG" ]; then
+        docker tag ninech/octo-keeper ninech/octo-keeper:$TRAVIS_TAG;
         docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-        docker push ninech/octo-keeper:$OCTO_KEEPER_VERSION;
+        docker push ninech/octo-keeper:$TRAVIS_TAG;
         docker push ninech/octo-keeper:latest;
       fi
 env:
