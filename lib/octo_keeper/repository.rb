@@ -9,7 +9,7 @@ module OctoKeeper
     end
 
     def team_permissions
-      OctoKeeper.config.repository_config(full_name)['permissions']
+      OctoKeeper.config.repository_config(full_name)['permissions'] || {}
     end
   end
 end

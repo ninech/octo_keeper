@@ -9,7 +9,7 @@ module OctoKeeper
 
     def self.load(path = 'config.yml')
       expanded_path = File.expand_path(path)
-      configuration_from_file = YAML.load_file(expanded_path)
+      configuration_from_file = YAML.load_file(expanded_path) || {}
       OctoKeeper.config = Configuration.new configuration_from_file
     rescue Errno::ENOENT
       raise ConfigNotFoundError, "File #{expanded_path} not found."

@@ -25,16 +25,28 @@ RSpec.describe OctoKeeper::Repository do
   end
 
   describe '#team_permissions' do
-    around do |example|
-      OctoKeeper.config = OctoKeeper::Configuration.new 'repositories' => {
+    let(:configuration) do
+      OctoKeeper::Configuration.new 'repositories' => {
         'default' => { 'permissions' => { 'bots' => 'push' } },
       }
+    end
+
+    around do |example|
+      OctoKeeper.config = configuration
       example.call
       OctoKeeper.config = nil
     end
 
     it 'returns the permissions key from the repository config' do
       expect(repository.team_permissions).to eq('bots' => 'push')
+    end
+
+    context 'when the configuration is missing' do
+      let(:configuration) { nil }
+      
+      it 'returns an empty hash' do
+        expect(repository.team_permissions).to eq({})
+      end
     end
   end
 end
