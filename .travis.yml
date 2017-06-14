@@ -6,17 +6,23 @@ notifications:
     secure: IHqRfufMVpseJTxC5Mkv5osjFNj87Tgm/1Ck+1zfVTHNrkeEBz1Gy9oJP4T8ApSiulkaymC9CiChmS3r92I+olnn5MaaK3lkRYFcYiUp9Oa+J8b4boyW1RA1F0k7F0KTeWr2UJEXdpiFFKbZjf5UkaS+7TnP8LbXFPKve42sNnZ6Cx6fdz6nxOBvWFmzFtoIs90HXMoPK6HgB+skcxdP1kFm4cwmETKiWrQRk+UMGVqFtvNBYdm70y8oDJ2sMqlm33aZDLotgc6FffNxiFQ0P4M2XxytM7SMxMaXCtCk7lnqs8WdOKUXdeJjEt6vzfw/NW23oAXCIm+BOKVlzgPzqJ8cNK1cm8niViMVWG9JLZVFLFGPXbuhn6l+/2+K7dFwzf3HmS3mRuYnys7GweRFMuOFuzyfooFucjOY2P0x8xON/fhzXwTlk2OLtA/42CKFHf/ontWml+Gan/CGh6RPlIQbGO48C4eFwcYq6ExQ3/DHRfq5q/ODO6vdJLKucY7piAaMrRCMR6DwTUKp/ftjyn8UqNO4zkbeqLxiAkFWnEZJ0TPJnYZFEBkXRoxuBcYdcUoF4eueiVoB6/rGS9xtDgBwGrwzKsuBioMm3QB/wjcjF6EiEU2B6ZrchcvLE6elDRb73UbqQ6oHPiu9VhoXBzHc18B3nJZnvagaQ7qb6Vk=
 jobs:
   include:
-    - stage: run ruby tests
-      language: ruby
-      rvm: 2.4.1
-      before_install: gem install bundler
-      script:
-      - bundle install
-      - bundle exec rspec
-    - stage: build docker image
-      services:
-      - docker
-      install: true
-      script:
-      - docker build -t ninech/octo-keeper .
-      - docker run --rm ninech/octo-keeper /usr/local/bundle/bin/octo-keeper help
+  - stage: run ruby tests
+    language: ruby
+    rvm: 2.4.1
+    before_install: gem install bundler
+    script:
+    - bundle install
+    - bundle exec rspec
+  - stage: build docker image
+    services:
+    - docker
+    install: true
+    script:
+    - docker build -t ninech/octo-keeper .
+    - docker run --rm ninech/octo-keeper /usr/local/bundle/bin/octo-keeper help
+    after_success:
+    - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"; docker push ninech/octo-keeper
+env:
+  global:
+  - secure: MshKZf68PcDgL68FhuTiQCRpWmhDwcOPJrDZJ2sB6VLF5wn0aUSFXrrmryQ7sM3D/bo6cin5VBNebibJstgviPCfvWxS1B3pdwq3X8Me2f6Po2Va34Bssd8hwT8lmexMhbQiBFA+sL02PZKAbtYeWu9P1afAS/8rdkP4t5I4ToZtMndUdB78McZMzJvTx4a3kwLRUZXN/OVZVcaEqqOzF2Es8LGR9mFFZZzV2O0ixFbxGkPDTnbqmCh9as/rWB4+EFc4qSay3cxAnyKhZ9linOCN+fYpJ5a6nijjx4WtHY4EAqw2TGFjVt6mMSH9Ka5b0+EENMAwgSogD/hV2mRyL9qRlGfjnq5oOAqyXzSxD30boQTNo+i9uz+XnaFMa1TxZNRv1Eu2ArxZO1gVDzey0Qvm0eJS5f11j3ecEpJSJfl5lBNkVcGhRrkicteK3mlzzcyAmPsGCztPg2EsFtzI4YI689ouZ8UV/BDuzFJFfw/ngi1IkD2f1vc54WtoOmRJsqWzPfBHRmjVp0uDyr51oqhLMmJCp02F/LN8SdErDmC2k8NDKmMS8qUCymmiOVpjmAYOAicNVzra1RSyTY190zrvzGL6+6rZavHbQ3DUJyNCvtAEGZaZdaNzWi67867pH3FOzBz+z9pjXJOVS1dfhMhtTaE0YIXpSZh97aCNS+g=
+  - secure: ZOhEshufUFxfYgAShbXQKXO8iMGmDKfxIzytzNGwpZACfrbRq4TT4pPWFGn8+IFPGi1jN7Ia6IoqeIddg/pmxUM6Z9F4nKJ+guLciVPyKgkrtlVvLHvQGunnC+iUpf1SRR80J7cH4+innfKL+4XvUjoJxhSKqq+FxU8y8xshBOOaD50r9e5aM41fd2/PnFgell68GDNjU3lOXzSQ9VQdOmRWSJMHXyxpy4+6+VXOt0g3JYOBMI8YB7CNqpZCcLVhr1SQEOEydxiDf5jd7rY/dooBRJyVczlPTcsOQTPsBO8VaVSz87kIl1u3PjRgqPdk+Rvsnm9eiPt/SkEdLZ/e/SJCM1Tgte9AOJ/yn2BkHSMBXd2PYVaU3LqElNDDhXjg95nnH55SHaGUTNtYKLO7LxpGkAiF4IrrPjeFTKctA8V8v3CwjQwkJOsmAoMSDLdCaQ53rameJtwlRPm0+HR+VS8syjvNNOLhg/AQnFEMQCUtwbfHBB85nJAf6PhVzmeZhLtNObkofLqHAjaUB452BSF+X3LTHLKUm5asUp4hOq9Pb7ZYlbEXPh/pEZQ4dxuJ43pthA0K+ry7wSF5e4mGnu+TjKnS7iGPiweBC4YgBrA+mQov9RJqFfXQjPeeysQ0BO0bANBG6NPBitZ0+16Qyz58tlIzjFbJ1Uz8mXdR+/Q=
