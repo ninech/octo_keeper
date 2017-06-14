@@ -21,12 +21,15 @@ jobs:
     - docker build -t ninech/octo-keeper:latest .
     - docker run --rm ninech/octo-keeper /usr/local/bundle/bin/octo-keeper help
     after_success:
-    - export OCTO_KEEPER_VERSION=$(docker run --rm ninech/octo-keeper /usr/local/bundle/bin/octo-keeper version)
-    - echo $OCTO_KEEPER_VERSION
-    - docker tag ninech/octo-keeper ninech/octo-keeper:$OCTO_KEEPER_VERSION
-    - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-    - docker push ninech/octo-keeper:$OCTO_KEEPER_VERSION
-    - docker push ninech/octo-keeper:latest
+    - echo $TRAVIS_BRANCH
+    - if [ $TRAVIS_BRANCH == "docker" ]; then
+        export OCTO_KEEPER_VERSION=$(docker run --rm ninech/octo-keeper /usr/local/bundle/bin/octo-keeper version);
+        echo $OCTO_KEEPER_VERSION;
+        docker tag ninech/octo-keeper ninech/octo-keeper:$OCTO_KEEPER_VERSION;
+        docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+        docker push ninech/octo-keeper:$OCTO_KEEPER_VERSION;
+        docker push ninech/octo-keeper:latest;
+      fi
 env:
   global:
   - secure: MshKZf68PcDgL68FhuTiQCRpWmhDwcOPJrDZJ2sB6VLF5wn0aUSFXrrmryQ7sM3D/bo6cin5VBNebibJstgviPCfvWxS1B3pdwq3X8Me2f6Po2Va34Bssd8hwT8lmexMhbQiBFA+sL02PZKAbtYeWu9P1afAS/8rdkP4t5I4ToZtMndUdB78McZMzJvTx4a3kwLRUZXN/OVZVcaEqqOzF2Es8LGR9mFFZZzV2O0ixFbxGkPDTnbqmCh9as/rWB4+EFc4qSay3cxAnyKhZ9linOCN+fYpJ5a6nijjx4WtHY4EAqw2TGFjVt6mMSH9Ka5b0+EENMAwgSogD/hV2mRyL9qRlGfjnq5oOAqyXzSxD30boQTNo+i9uz+XnaFMa1TxZNRv1Eu2ArxZO1gVDzey0Qvm0eJS5f11j3ecEpJSJfl5lBNkVcGhRrkicteK3mlzzcyAmPsGCztPg2EsFtzI4YI689ouZ8UV/BDuzFJFfw/ngi1IkD2f1vc54WtoOmRJsqWzPfBHRmjVp0uDyr51oqhLMmJCp02F/LN8SdErDmC2k8NDKmMS8qUCymmiOVpjmAYOAicNVzra1RSyTY190zrvzGL6+6rZavHbQ3DUJyNCvtAEGZaZdaNzWi67867pH3FOzBz+z9pjXJOVS1dfhMhtTaE0YIXpSZh97aCNS+g=
