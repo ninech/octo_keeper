@@ -9,6 +9,11 @@ module OctoKeeper
 
       desc "webhook SUBCOMMAND", "Run a web application which servers as a Github webhook."
       subcommand :webhook, Webhook
+
+      desc "version", "Show the version of octo-keeper."
+      def version
+        say OctoKeeper::VERSION
+      end
     end
   end
 end
