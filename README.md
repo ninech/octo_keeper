@@ -34,13 +34,17 @@ Start the webhook server to receive github webhooks:
 
     $ octo-keeper webhook start --config config.yml
 
-Now you can enter the following webhook at Github.com: https://<hostname>/
+Now you can enter the following webhook at Github.com: https://hostname/
 
 ## Docker
 
 Octo-Keeper can be run in its own Docker container. You can link the configuration file into the container as a volume.
 
-    $ docker run --name octo-keeper -p 4567:4567 -v config.yml:/home/octo-keeper/config.yml octo-keeper
+    $ docker run --name octo-keeper \
+                 -p 4567:4567 \
+                 -v $(pwd)/config.example.yml:/home/octo-keeper/config.yml \
+                 -e OCTOKEEPER_ACCESS_TOKEN=secret-token \
+                 ninech/octo-keeper
 
 ## Development
 
