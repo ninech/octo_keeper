@@ -19,6 +19,10 @@ module OctoKeeper
       { error: 'Cannot parse payload. Invalid JSON.' }.to_json
     end
 
+    get '/ping' do
+      { pong: DateTime.now.rfc3339 }.to_json
+    end
+
     post '/' do
       repository = Repository.new parsed_body['repository']
       logger.info %(Received "#{parsed_body['action']}" event for repository #{repository.full_name}.)

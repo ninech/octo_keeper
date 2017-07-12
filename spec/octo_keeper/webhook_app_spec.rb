@@ -20,6 +20,18 @@ RSpec.describe OctoKeeper::WebhookApp do
     OctoKeeper.config = nil
   end
 
+  describe 'GET /ping' do
+    it 'returns the timestamp' do
+      get '/ping'
+      expect(JSON.parse(last_response.body)).to have_key 'pong'
+    end
+
+    it 'returns status code 200' do
+      get '/ping'
+      expect(last_response.status).to eq 200
+    end
+  end
+
   describe 'POST /' do
     it 'is successful' do
       post '/', payload
