@@ -1,4 +1,5 @@
 require 'sinatra/base'
+require_relative 'github_event_handlers'
 
 # This command can start a webserver which is able to receive and process
 # organization webhooks from Github.
@@ -24,14 +25,9 @@ module OctoKeeper
     end
 
     post '/' do
-      return halt 400, { message: 'OctoKeeper cannot handle this event.' }.to_json unless parsed_body['repository']
-
-      repository = Repository.new parsed_body['repository']
-      logger.info %(Received "#{parsed_body['action']}" event for repository #{repository.full_name}.)
-
-      handle_repository_created(repository) if parsed_body['action'] == 'created'
-
-      { status: "OK" }.to_json
+      handler.process do |status, message|
+        halt status, { message: message }.to_json
+      end
     end
 
     private
@@ -46,22 +42,12 @@ module OctoKeeper
       @parsed_body ||= JSON.parse(payload_body)
     end
 
-    def handle_repository_created(repository)
-      repository.team_permissions.each_pair do |team_slug, permission|
-        team = Team.from_slug(repository.owner, team_slug, client: OctoKeeper.octokit_client)
-        if team
-          save_permissions(team, repository, permission)
-        else
-          logger.warn "Team #{team_slug} was not found. Cannot set permissions."
-        end
-      end
+    def event
+      request.env['HTTP_X_GITHUB_EVENT'].to_s
     end
 
-    def save_permissions(team, repository, permission)
-      OctoKeeper.octokit_client.add_team_repository(team.id, repository.full_name, permission: permission)
-      logger.info "Added #{permission} permission for team #{team.slug} on #{repository.name}."
-    rescue StandardError => e
-      logger.error "Setting permissions for team #{team.slug} failed: #{e.message}"
+    def handler
+      @handler ||= OctoKeeper::GithubEventHandlers.from_event_name(event, parsed_body, logger)
     end
 
     def verify_signature!(payload_body)

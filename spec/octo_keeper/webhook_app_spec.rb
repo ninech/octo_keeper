@@ -41,59 +41,63 @@ RSpec.describe OctoKeeper::WebhookApp do
   describe 'POST /' do
     before { header 'X-Hub-Signature', payload_signature }
 
-    it 'is successful' do
-      post '/', payload
-      expect(last_response.status).to eq 200
-    end
-
-    it 'sets permissions for the repository according to the settings' do
-      expect(octokit_client).to receive(:add_team_repository).
-        with(1000, 'ninech-test/yolo', permission: 'pull')
-      post '/', payload
-    end
-
-    context 'for non-create actions' do
-      let(:payload) { { "action" => "deleted", "repository" => {} }.to_json }
-
-      it 'returns a successful code' do
-        post '/', payload
-        expect(last_response.status).to eq 200
-      end
-    end
-
-    context 'for unknown events' do
-      let(:payload) { { "action" => "yolo" }.to_json }
+    describe 'Unknown event' do
+      before { header 'X-Github-Event', 'yolo' }
 
       it 'returns a meaningful return code' do
         post '/', payload
-        expect(last_response.status).to eq 400
+        expect(last_response.status).to eq 501
       end
     end
 
-    context 'when a team does not exist' do
-      before { allow(OctoKeeper::Team).to receive(:from_slug).and_return(nil) }
+    describe 'Repository event' do
+      before { header 'X-Github-Event', 'repository' }
 
-      it 'skips the team' do
-        expect { post '/', payload }.to_not raise_exception
-        expect(last_response.status).to eq 200
-      end
-    end
-
-    context 'without providing a valid secret' do
-      before { header 'X-Hub-Signature', nil }
-
-      it 'returns an appropriate status code' do
-        post '/', payload
-        expect(last_response.status).to eq 403
-      end
-    end
-
-    context 'when no github secret is configured' do
-      before { allow(OctoKeeper.config).to receive(:github_secret).and_return(nil) }
-
-      it 'returns an appropriate status code' do
+      it 'is successful' do
         post '/', payload
         expect(last_response.status).to eq 200
+      end
+
+      it 'sets permissions for the repository according to the settings' do
+        expect(octokit_client).to receive(:add_team_repository).
+          with(1000, 'ninech-test/yolo', permission: 'pull')
+        post '/', payload
+      end
+
+      context 'for non-create actions' do
+        let(:payload) { { "action" => "deleted", "repository" => {} }.to_json }
+
+        it 'returns a successful code' do
+          post '/', payload
+          expect(last_response.status).to eq 200
+        end
+      end
+
+      context 'when a team does not exist' do
+        before { allow(OctoKeeper::Team).to receive(:from_slug).and_return(nil) }
+
+        it 'skips the team' do
+          expect { post '/', payload }.to_not raise_exception
+          expect(last_response.status).to eq 200
+        end
+      end
+
+      context 'without providing a valid secret' do
+        before { header 'X-Hub-Signature', nil }
+
+        it 'returns an appropriate status code' do
+          post '/', payload
+          expect(last_response.status).to eq 403
+        end
+      end
+
+      context 'when no github secret is configured' do
+        before { allow(OctoKeeper.config).to receive(:github_secret).and_return(nil) }
+
+        it 'returns an appropriate status code' do
+          post '/', payload
+          expect(last_response.status).to eq 200
+        end
       end
     end
   end
