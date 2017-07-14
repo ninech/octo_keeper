@@ -15,12 +15,15 @@ module OctoKeeper
       { error: 'Cannot parse payload. Invalid JSON.' }.to_json
     end
 
+    before %r{\/((?!ping).)*} do # all except /ping
+      verify_signature!(payload_body)
+    end
+
     get '/ping' do
       { pong: DateTime.now.rfc3339 }.to_json
     end
 
     post '/' do
-      verify_signature!(payload_body)
       return halt 400, { message: 'OctoKeeper cannot handle this event.' }.to_json unless parsed_body['repository']
 
       repository = Repository.new parsed_body['repository']
