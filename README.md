@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/ninech/octo_keeper.svg?branch=master)](https://travis-ci.org/ninech/octo_keeper)
+[![Code Climate](https://codeclimate.com/github/ninech/octo_keeper/badges/gpa.svg)](https://codeclimate.com/github/ninech/octo_keeper)
 
 # OctoKeeper
 
