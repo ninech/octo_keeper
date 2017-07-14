@@ -24,13 +24,15 @@ module OctoKeeper
     end
 
     post '/' do
-      repository = Repository.new parsed_body['repository']
-      logger.info %(Received "#{parsed_body['action']}" event for repository #{repository.full_name}.)
-
-      case parsed_body['action']
-      when 'created'
-        handle_repository_created(repository)
+      if parsed_body['repository']
+        repository = Repository.new parsed_body['repository']
+        logger.info %(Received "#{parsed_body['action']}" event for repository #{repository.full_name}.)
+      else
+        status 400
+        return { message: 'OctoKeeper cannot handle this event.' }.to_json
       end
+
+      handle_repository_created(repository) if parsed_body['action'] == 'created'
 
       { status: "OK" }.to_json
     end

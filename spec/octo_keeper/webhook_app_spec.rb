@@ -43,5 +43,23 @@ RSpec.describe OctoKeeper::WebhookApp do
         with(1000, 'ninech-test/yolo', permission: 'pull')
       post '/', payload
     end
+
+    context 'for non-create actions' do
+      let(:payload) { { "action" => "deleted", "repository" => {} }.to_json }
+
+      it 'returns a successful code' do
+        post '/', payload
+        expect(last_response.status).to eq 200
+      end
+    end
+
+    context 'for unknown events' do
+      let(:payload) { { "action" => "yolo" }.to_json }
+
+      it 'returns a meaningful return code' do
+        post '/', payload
+        expect(last_response.status).to eq 400
+      end
+    end
   end
 end
