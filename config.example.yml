@@ -1,9 +1,15 @@
 ---
+# configure permssions for repositories
 repositories:
+  # these default permissions apply for all repositories, unless they overwrite them further down
   default:
     permissions:
+      # grant permissions for teams. all the lines must be in the form of
+      # team: permission
+      # valid permissions are pull, push, admin
       bots: pull
       deployment: pull
+  # overwrite default permissions for specific repositories
   ninech-test/new-repo:
     permissions:
       deployment: push
