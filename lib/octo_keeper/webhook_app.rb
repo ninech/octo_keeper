@@ -57,7 +57,7 @@ module OctoKeeper
       OctoKeeper.octokit_client.add_team_repository(team.id, repository.full_name, permission: permission)
       logger.info "Added #{permission} permission for team #{team.slug} on #{repository.name}."
     rescue StandardError => e
-      logger.error "Setting permissions for team #{team_slug} failed: #{e.message}"
+      logger.error "Setting permissions for team #{team.slug} failed: #{e.message}"
     end
 
     def verify_signature!(payload_body)
