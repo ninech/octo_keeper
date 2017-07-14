@@ -6,6 +6,7 @@ module OctoKeeper
   class Configuration
     attr_reader :port, :bind
     attr_reader :repositories
+    attr_writer :github_secret
 
     def self.load(path = 'config.yml')
       expanded_path = File.expand_path(path)
@@ -27,6 +28,10 @@ module OctoKeeper
 
     def default_repository_config
       @repositories['default'] || {}
+    end
+
+    def github_secret
+      @github_secret || ENV['OCTOKEEPER_GITHUB_SECRET']
     end
 
     private

@@ -9,14 +9,14 @@ module OctoKeeper
       enable :logging
     end
 
-    before do
-      # check for secret in header
-    end
-
     error JSON::ParserError do
       logger.error "Received unparsable JSON payload."
       status 500
       { error: 'Cannot parse payload. Invalid JSON.' }.to_json
+    end
+
+    before %r{\/((?!ping).)*} do # all except /ping
+      verify_signature!(payload_body)
     end
 
     get '/ping' do
@@ -24,13 +24,10 @@ module OctoKeeper
     end
 
     post '/' do
-      if parsed_body['repository']
-        repository = Repository.new parsed_body['repository']
-        logger.info %(Received "#{parsed_body['action']}" event for repository #{repository.full_name}.)
-      else
-        status 400
-        return { message: 'OctoKeeper cannot handle this event.' }.to_json
-      end
+      return halt 400, { message: 'OctoKeeper cannot handle this event.' }.to_json unless parsed_body['repository']
+
+      repository = Repository.new parsed_body['repository']
+      logger.info %(Received "#{parsed_body['action']}" event for repository #{repository.full_name}.)
 
       handle_repository_created(repository) if parsed_body['action'] == 'created'
 
@@ -39,10 +36,14 @@ module OctoKeeper
 
     private
 
-    def parsed_body
-      return @parsed_body if @parsed_body
+    def payload_body
+      return @payload_body if @payload_body
       request.body.rewind
-      @parsed_body = JSON.parse(request.body.read)
+      @payload_body = request.body.read
+    end
+
+    def parsed_body
+      @parsed_body ||= JSON.parse(payload_body)
     end
 
     def handle_repository_created(repository)
@@ -57,6 +58,15 @@ module OctoKeeper
       logger.info "Added #{permission} permission for team #{team.slug} on #{repository.name}."
     rescue StandardError => e
       logger.error "Setting permissions for team #{team_slug} failed: #{e.message}"
+    end
+
+    def verify_signature!(payload_body)
+      secret = OctoKeeper.config.github_secret
+      return true unless secret
+
+      signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), secret, payload_body)
+      return if Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'].to_s)
+      halt 403, { message: "Invalid access token!" }.to_json
     end
   end
 end

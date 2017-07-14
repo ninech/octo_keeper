@@ -5,14 +5,20 @@ require 'rack/test'
 RSpec.describe OctoKeeper::WebhookApp do
   include Rack::Test::Methods
 
-  let(:app) { described_class }
-  let(:payload) { File.read('spec/fixtures/example-repository-create-event.json') }
-  let(:configuration) { { 'repositories' => { 'default' => { 'permissions' => { 'bots' => 'pull' } } } } }
+  let(:app)               { described_class }
+  let(:github_secret)     { 'super-secret' }
+  let(:payload)           { File.read('spec/fixtures/example-repository-create-event.json') }
+  let(:configuration)     { { 'repositories' => { 'default' => { 'permissions' => { 'bots' => 'pull' } } } } }
+  let(:payload_signature) do
+    'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), github_secret, payload)
+  end
 
   let(:octokit_client) do
     instance_double 'Octokit::Client', add_team_repository: true, org_teams: [double(id: 1000, slug: 'bots')]
   end
   before { allow(OctoKeeper).to receive(:octokit_client).and_return(octokit_client) }
+
+  before { allow(OctoKeeper.config).to receive(:github_secret).and_return(github_secret) }
 
   around do |example|
     OctoKeeper.config = OctoKeeper::Configuration.new configuration
@@ -33,6 +39,8 @@ RSpec.describe OctoKeeper::WebhookApp do
   end
 
   describe 'POST /' do
+    before { header 'X-Hub-Signature', payload_signature }
+
     it 'is successful' do
       post '/', payload
       expect(last_response.status).to eq 200
@@ -59,6 +67,24 @@ RSpec.describe OctoKeeper::WebhookApp do
       it 'returns a meaningful return code' do
         post '/', payload
         expect(last_response.status).to eq 400
+      end
+    end
+
+    context 'without providing a valid secret' do
+      before { header 'X-Hub-Signature', nil }
+
+      it 'returns an appropriate status code' do
+        post '/', payload
+        expect(last_response.status).to eq 403
+      end
+    end
+
+    context 'when no github secret is configured' do
+      before { allow(OctoKeeper.config).to receive(:github_secret).and_return(nil) }
+
+      it 'returns an appropriate status code' do
+        post '/', payload
+        expect(last_response.status).to eq 200
       end
     end
   end
