@@ -12,6 +12,8 @@ module OctoKeeper
       def start
         load_configuration
 
+        say "Starting version #{OctoKeeper::VERSION} of OctoKeeper Github webhook."
+
         port = OctoKeeper.config.port || options[:port]
         bind = OctoKeeper.config.bind || options[:bind]
         OctoKeeper.config.github_secret ||= options['github-secret']
