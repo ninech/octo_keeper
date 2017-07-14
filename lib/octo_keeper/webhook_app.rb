@@ -49,7 +49,11 @@ module OctoKeeper
     def handle_repository_created(repository)
       repository.team_permissions.each_pair do |team_slug, permission|
         team = Team.from_slug(repository.owner, team_slug, client: OctoKeeper.octokit_client)
-        save_permissions(team, repository, permission)
+        if team
+          save_permissions(team, repository, permission)
+        else
+          logger.warn "Team #{team_slug} was not found. Cannot set permissions."
+        end
       end
     end
 

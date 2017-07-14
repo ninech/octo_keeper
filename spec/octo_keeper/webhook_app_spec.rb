@@ -70,6 +70,15 @@ RSpec.describe OctoKeeper::WebhookApp do
       end
     end
 
+    context 'when a team does not exist' do
+      before { allow(OctoKeeper::Team).to receive(:from_slug).and_return(nil) }
+
+      it 'skips the team' do
+        expect { post '/', payload }.to_not raise_exception
+        expect(last_response.status).to eq 200
+      end
+    end
+
     context 'without providing a valid secret' do
       before { header 'X-Hub-Signature', nil }
 
