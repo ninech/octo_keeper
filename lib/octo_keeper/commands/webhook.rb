@@ -7,11 +7,15 @@ module OctoKeeper
       option :port, type: :numeric, default: 4567, banner: 'PORT', desc: 'The on which to listen for requests.'
       option :bind, type: :string, default: 'localhost', desc: 'The interface to listen on.'
       option :config, type: :string, default: '~/.octo-keeper.yml', desc: 'Path to the config file.'
+      option 'github-secret', type: :string,
+                              desc: 'A secret token to share with Github.com. Default: $OCTOKEEPER_GITHUB_TOKEN.'
       def start
         load_configuration
 
         port = OctoKeeper.config.port || options[:port]
         bind = OctoKeeper.config.bind || options[:bind]
+        OctoKeeper.config.github_secret ||= options['github-secret']
+
         OctoKeeper::WebhookApp.run! port: port, bind: bind
       end
 
