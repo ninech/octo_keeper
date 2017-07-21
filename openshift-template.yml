@@ -1,0 +1,197 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: octo-keeper
+parameters:
+- description: The webhook secret to share with Github.
+  displayName: Github Secret
+  from: '[A-Z0-9]{16}'
+  generate: expression
+  name: GITHUB_SECRET
+- description: A Github access token with rights to set team permissions on repositories.
+  displayName: Access Token
+  name: ACCESS_TOKEN
+  required: true
+- description: The host where this instance of OctoKeeper is reachable.
+  displayName: Host
+  name: OCTOKEEPER_HOST
+  value: octokeeper.company.com
+  required: true
+message: "... The GitHub webhook secret is ${GITHUB_SECRET} ..."
+objects:
+- apiVersion: v1
+  stringData:
+    access-token: "${ACCESS_TOKEN}"
+    github-secret: "${GITHUB_SECRET}"
+  kind: Secret
+  metadata:
+    labels:
+      app: octo-keeper
+    name: octo-keeper
+  type: Opaque
+- apiVersion: v1
+  data:
+    config.yml: |
+      ---
+      repositories:
+        default:
+          permissions: {}
+  kind: ConfigMap
+  metadata:
+    labels:
+      app: octo-keeper
+    name: octo-keeper-config
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: octo-keeper
+    name: octo-keeper
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: octo-keeper:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        uri: https://github.com/ninech/octo_keeper
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: DockerImage
+          name: ruby:2.4-alpine
+      type: Docker
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: octo-keeper
+    name: octo-keeper
+  spec:
+    replicas: 1
+    selector:
+      deployment-config.name: octo-keeper
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: octo-keeper
+          deployment-config.name: octo-keeper
+      spec:
+        containers:
+        - command:
+          - octo-keeper
+          - webhook
+          - start
+          - --config
+          - /etc/octo-keeper/config.yml
+          - --bind
+          - 0.0.0.0
+          env:
+          - name: OCTOKEEPER_GITHUB_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: github-secret
+                name: octo-keeper
+          - name: OCTOKEEPER_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                key: access-token
+                name: octo-keeper
+          # how do I?
+          image: 172.30.64.228:5000/ninech-engineering/octo-keeper@sha256:91249ec4da807383b99eb1ff6cc3033f3463deacdab46956c36dc93e934d5436
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ping
+              port: 4567
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: octo-keeper
+          ports:
+          - containerPort: 4567
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ping
+              port: 4567
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 20m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /etc/octo-keeper
+            name: config-volume
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: octo-keeper-config
+          name: config-volume
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - octo-keeper
+        from:
+          kind: ImageStreamTag
+          name: octo-keeper:latest
+          namespace: "${OPENSHIFT_DEPLOYMENT_NAMESPACE}"
+      type: ImageChange
+    - type: ConfigChange
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      app: octo-keeper
+    name: octo-keeper
+  spec:
+    host: "${OCTOKEEPER_HOST}"
+    to:
+      kind: Service
+      name: octo-keeper
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: octo-keeper
+    name: octo-keeper
+  spec:
+    ports:
+    - port: 4567
+      protocol: TCP
+      targetPort: 4567
+    selector:
+      app: octo-keeper
+    sessionAffinity: None
+    type: ClusterIP
