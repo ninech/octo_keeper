@@ -82,3 +82,9 @@ $ http --json POST localhost:4567 X-Hub-Signature:sha1=d1ee402dd2742b6646f564bff
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/ninech/octo_keeper.
+
+## About
+
+This tool is currently maintained and funded by [nine](https://nine.ch).
+
+[![logo of the company 'nine'](https://logo.apps.at-nine.ch/Dmqied_eSaoBMQwk3vVgn4UIgDo=/trim/500x0/logo_claim.png)](https://www.nine.ch)
